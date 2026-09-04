@@ -1,7 +1,7 @@
 {
-  "overall": "partial_outage",
-  "checkedAt": "2026-09-04T21:30:43.113Z",
-  "message": "Detectamos problemas en una parte del servicio.",
+  "overall": "major_outage",
+  "checkedAt": "2026-09-04T21:45:31.519Z",
+  "message": "La plataforma no está respondiendo correctamente.",
   "components": [
     {
       "id": "status_page",
@@ -13,7 +13,7 @@
       "id": "public_site",
       "name": "Sitio institucional",
       "description": "Portada pública y acceso general a Sinergius.",
-      "status": "operational"
+      "status": "major_outage"
     },
     {
       "id": "meeting_api",
@@ -316,14 +316,14 @@
       },
       {
         "date": "2026-09-04",
-        "checks": 93,
+        "checks": 94,
         "failed": {
-          "status_page": 14,
-          "public_site": 13,
-          "meeting_api": 14,
-          "alternate_domain": 14
+          "status_page": 15,
+          "public_site": 14,
+          "meeting_api": 15,
+          "alternate_domain": 15
         },
-        "failedChecks": 14,
+        "failedChecks": 15,
         "overall": "degraded"
       }
     ]
