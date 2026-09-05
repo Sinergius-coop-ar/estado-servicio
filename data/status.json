@@ -1,6 +1,6 @@
 {
   "overall": "major_outage",
-  "checkedAt": "2026-09-05T23:30:40.752Z",
+  "checkedAt": "2026-09-05T23:45:26.824Z",
   "message": "La plataforma no está respondiendo correctamente.",
   "components": [
     {
@@ -328,14 +328,14 @@
       },
       {
         "date": "2026-09-05",
-        "checks": 104,
+        "checks": 105,
         "failed": {
-          "status_page": 104,
-          "public_site": 104,
-          "meeting_api": 104,
-          "alternate_domain": 103
+          "status_page": 105,
+          "public_site": 105,
+          "meeting_api": 105,
+          "alternate_domain": 104
         },
-        "failedChecks": 104,
+        "failedChecks": 105,
         "overall": "major_outage"
       }
     ]
