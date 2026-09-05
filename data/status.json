@@ -1,7 +1,7 @@
 {
-  "overall": "partial_outage",
-  "checkedAt": "2026-09-05T02:45:33.573Z",
-  "message": "Detectamos problemas en una parte del servicio.",
+  "overall": "major_outage",
+  "checkedAt": "2026-09-05T03:00:58.487Z",
+  "message": "La plataforma no está respondiendo correctamente.",
   "components": [
     {
       "id": "status_page",
@@ -25,7 +25,7 @@
       "id": "alternate_domain",
       "name": "Dominio alternativo",
       "description": "Redirección segura desde sinergius.com.ar al sitio principal.",
-      "status": "operational"
+      "status": "major_outage"
     }
   ],
   "history": {
@@ -328,14 +328,14 @@
       },
       {
         "date": "2026-09-05",
-        "checks": 13,
+        "checks": 14,
         "failed": {
-          "status_page": 13,
-          "public_site": 13,
-          "meeting_api": 13,
-          "alternate_domain": 12
+          "status_page": 14,
+          "public_site": 14,
+          "meeting_api": 14,
+          "alternate_domain": 13
         },
-        "failedChecks": 13,
+        "failedChecks": 14,
         "overall": "major_outage"
       }
     ]
