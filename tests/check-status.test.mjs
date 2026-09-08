@@ -60,6 +60,21 @@ test("la página de estado requiere que carguen la web y los datos frescos", asy
   assert.equal(calls, 6);
 });
 
+test("el control usa cabeceras compatibles con el perímetro de Cloudflare", async () => {
+  let capturedOptions;
+  const target = TARGETS.find(({ id }) => id === "public_site");
+  const result = await checkTarget(target, async (_url, options) => {
+    capturedOptions = options;
+    return new Response("Sinergius", { status: 200 });
+  }, async () => {});
+
+  assert.equal(result.ok, true);
+  assert.match(capturedOptions.headers["User-Agent"], /^Mozilla\/5\.0/);
+  assert.match(capturedOptions.headers["User-Agent"], /Chrome\//);
+  assert.match(capturedOptions.headers.Accept, /text\/html/);
+  assert.equal(capturedOptions.headers["Accept-Language"], "es-AR,es;q=0.9,en;q=0.7");
+});
+
 test("el control SMTP requiere un token fuera del repositorio", () => {
   const meeting = TARGETS.find(({ id }) => id === "meeting_api");
   assert.equal(meeting.requiredEnv, "MEETING_HEALTH_TOKEN");

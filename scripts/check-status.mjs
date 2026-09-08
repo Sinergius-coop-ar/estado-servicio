@@ -5,7 +5,20 @@ const STATUS_PATH = new URL("../data/status.json", import.meta.url);
 const INCIDENTS_PATH = new URL("../data/incidents.json", import.meta.url);
 const MAX_HISTORY_DAYS = 90;
 const MAX_RESPONSE_BYTES = 256 * 1024;
-const USER_AGENT = "EstadoServicio/1.0 (+https://estado.sinergius.coop.ar)";
+// Bot Fight Mode del plan Free no admite excepciones para monitores. Usar una
+// huella HTTP convencional evita que Cloudflare desafíe el control legítimo,
+// mientras el endpoint sensible sigue autenticado con su token independiente.
+const USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
+
+function requestHeaders(healthToken = null) {
+  return {
+    "User-Agent": USER_AGENT,
+    Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
+    "Accept-Language": "es-AR,es;q=0.9,en;q=0.7",
+    "Cache-Control": "no-cache",
+    ...(healthToken ? { Authorization: `Bearer ${healthToken}` } : {}),
+  };
+}
 
 export const TARGETS = [
   {
@@ -106,10 +119,7 @@ export async function checkTarget(target, fetchImplementation = fetch, delayImpl
       const endpoints = [target, ...(target.additionalChecks ?? [])];
       const checks = await Promise.all(endpoints.map(async (endpoint) => {
         const response = await fetchImplementation(endpoint.url, {
-          headers: {
-            "User-Agent": USER_AGENT,
-            ...(healthToken ? { Authorization: `Bearer ${healthToken}` } : {}),
-          },
+          headers: requestHeaders(healthToken),
           redirect: "follow",
           signal: AbortSignal.timeout(20_000),
         });
@@ -149,7 +159,7 @@ export async function checkTarget(target, fetchImplementation = fetch, delayImpl
 export async function hasNetworkAccess(fetchImplementation = fetch) {
   const attempts = NETWORK_CANARIES.map(async (url) => {
     const response = await fetchImplementation(url, {
-      headers: { "User-Agent": USER_AGENT },
+      headers: requestHeaders(),
       redirect: "follow",
       signal: AbortSignal.timeout(10_000),
     });
