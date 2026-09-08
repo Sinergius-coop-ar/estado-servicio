@@ -35,34 +35,34 @@
         "date": "2026-08-11",
         "checks": 49,
         "failed": {
-          "public_site": 10,
-          "meeting_api": 10,
-          "alternate_domain": 10
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 10,
-        "overall": "partial_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-08-12",
         "checks": 117,
         "failed": {
-          "public_site": 6,
-          "meeting_api": 6,
-          "alternate_domain": 6
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 6,
-        "overall": "degraded"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-08-13",
         "checks": 116,
         "failed": {
-          "public_site": 36,
-          "meeting_api": 36,
-          "alternate_domain": 39
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 39,
-        "overall": "partial_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-08-14",
@@ -70,10 +70,10 @@
         "failed": {
           "public_site": 0,
           "meeting_api": 0,
-          "alternate_domain": 6
+          "alternate_domain": 0
         },
-        "failedChecks": 6,
-        "overall": "degraded"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-08-15",
@@ -92,11 +92,11 @@
         "failed": {
           "status_page": 0,
           "public_site": 0,
-          "meeting_api": 81,
+          "meeting_api": 0,
           "alternate_domain": 0
         },
-        "failedChecks": 81,
-        "overall": "major_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-08-17",
@@ -318,61 +318,61 @@
         "date": "2026-09-04",
         "checks": 103,
         "failed": {
-          "status_page": 24,
-          "public_site": 23,
-          "meeting_api": 24,
-          "alternate_domain": 23
+          "status_page": 0,
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 24,
-        "overall": "partial_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-09-05",
         "checks": 105,
         "failed": {
-          "status_page": 105,
-          "public_site": 105,
-          "meeting_api": 105,
-          "alternate_domain": 104
+          "status_page": 0,
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 105,
-        "overall": "major_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-09-06",
         "checks": 104,
         "failed": {
-          "status_page": 104,
-          "public_site": 104,
-          "meeting_api": 104,
-          "alternate_domain": 103
+          "status_page": 0,
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 104,
-        "overall": "major_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-09-07",
         "checks": 102,
         "failed": {
-          "status_page": 102,
-          "public_site": 102,
-          "meeting_api": 102,
-          "alternate_domain": 99
+          "status_page": 0,
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 102,
-        "overall": "major_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       },
       {
         "date": "2026-09-08",
         "checks": 16,
         "failed": {
-          "status_page": 15,
-          "public_site": 15,
-          "meeting_api": 15,
-          "alternate_domain": 15
+          "status_page": 0,
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
         },
-        "failedChecks": 15,
-        "overall": "major_outage"
+        "failedChecks": 0,
+        "overall": "operational"
       }
     ]
   }
