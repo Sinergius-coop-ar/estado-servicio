@@ -1,13 +1,13 @@
 {
-  "overall": "partial_outage",
-  "checkedAt": "2026-09-13T01:15:27.266Z",
-  "message": "Detectamos problemas en una parte del servicio.",
+  "overall": "operational",
+  "checkedAt": "2026-09-13T01:30:42.379Z",
+  "message": "No detectamos problemas en los servicios controlados.",
   "components": [
     {
       "id": "status_page",
       "name": "Página de estado",
       "description": "Disponibilidad del panel público de estado.",
-      "status": "major_outage"
+      "status": "operational"
     },
     {
       "id": "public_site",
@@ -424,7 +424,7 @@
       },
       {
         "date": "2026-09-13",
-        "checks": 2,
+        "checks": 3,
         "failed": {
           "status_page": 2,
           "public_site": 0,
