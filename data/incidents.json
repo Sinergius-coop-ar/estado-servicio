@@ -3,10 +3,10 @@
     {
       "id": "automatic-20260913063623",
       "title": "Interrupción parcial del servicio",
-      "message": "Detectamos problemas en una parte del servicio.",
+      "message": "El funcionamiento normal fue restablecido.",
       "lastHealthyAt": "2026-09-13T04:01:00.319Z",
       "startedAt": "2026-09-13T06:36:23.289Z",
-      "resolvedAt": null
+      "resolvedAt": "2026-09-13T06:45:32.306Z"
     },
     {
       "id": "automatic-20260913011431",
