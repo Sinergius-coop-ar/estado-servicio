@@ -1,3 +1,12 @@
 {
-  "incidents": []
+  "incidents": [
+    {
+      "id": "automatic-20260913011431",
+      "title": "Interrupción parcial del servicio",
+      "message": "Detectamos problemas en una parte del servicio.",
+      "lastHealthyAt": "2026-09-12T20:15:30.593Z",
+      "startedAt": "2026-09-13T01:14:31.145Z",
+      "resolvedAt": null
+    }
+  ]
 }
