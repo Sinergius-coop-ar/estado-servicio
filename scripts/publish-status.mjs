@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { validatePublicDocuments } from "../worker/status-data-proxy.mjs";
 
 const ENDPOINT = "https://estado.sinergius.coop.ar/data/publish";
 
@@ -13,6 +14,7 @@ export async function publishStatus({ env = process.env, fetchImpl = fetch,
   }
   const [status, incidents] = await Promise.all(["status.json", "incidents.json"].map(async filename =>
     JSON.parse(await readFile(join(env.STATUS_DATA_DIR, filename), "utf8"))));
+  if (!validatePublicDocuments(status, incidents, Date.now())) throw new Error("Invalid public documents");
   const body = JSON.stringify({ revision, status, incidents });
   if (Buffer.byteLength(body) > 256 * 1024) throw new Error("Snapshot exceeds size limit");
   const tokenUrl = new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL);
@@ -27,6 +29,9 @@ export async function publishStatus({ env = process.env, fetchImpl = fetch,
 
   for (let attempt = 0; attempt < 6; attempt += 1) {
     try {
+      // Intentional publication: only schema-validated public status/incidents
+      // go to this fixed project endpoint. No other local files are read.
+      // codeql[js/file-access-to-http]
       const response = await fetchImpl(ENDPOINT, {
         method: "POST", redirect: "error", signal: AbortSignal.timeout(15_000),
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body,

@@ -1,6 +1,6 @@
 name = "sinergius-status-data"
 main = "worker/status-snapshot.mjs"
-compatibility_date = "2026-08-17"
+compatibility_date = "2026-08-18"
 workers_dev = false
 
 [[durable_objects.bindings]]

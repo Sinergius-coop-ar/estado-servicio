@@ -46,6 +46,7 @@ jobs:
         shell: bash
         env:
           MEETING_HEALTH_TOKEN: ${{ secrets.MEETING_HEALTH_TOKEN }}
+          STATUS_PUSH_ENABLED: ${{ vars.STATUS_PUSH_ENABLED }}
         run: |
           result="$(node scripts/check-status.mjs)"
           echo "${result}"

@@ -8,16 +8,22 @@ import { publishStatus } from "../scripts/publish-status.mjs";
 test("publica con OIDC y comprueba la misma versión por la URL pública; reintenta un ACK perdido", async () => {
   const dir = await mkdtemp(join(tmpdir(), "status-publish-"));
   try {
-    const snapshot = { revision: "a".repeat(40), status: { checkedAt: new Date().toISOString() }, incidents: { incidents: [] } };
+    const snapshot = { revision: "a".repeat(40), status: {
+      overall: "operational", checkedAt: new Date().toISOString(), message: "OK",
+      components: ["status_page", "public_site", "meeting_api", "alternate_domain"].map(id =>
+        ({ id, name: id, description: id, status: "operational" })),
+      history: { startedAt: "2026-08-11", days: [] },
+    }, incidents: { incidents: [] } };
     await writeFile(join(dir, "status.json"), JSON.stringify(snapshot.status));
     await writeFile(join(dir, "incidents.json"), JSON.stringify(snapshot.incidents));
     let writes = 0;
-    const result = await publishStatus({ env: {
+    const env = {
       STATUS_DATA_DIR: dir, STATUS_DATA_REVISION: snapshot.revision,
       ACTIONS_ID_TOKEN_REQUEST_URL: "https://actions.test/token?api-version=2",
       ACTIONS_ID_TOKEN_REQUEST_TOKEN: "request-secret",
-    }, sleep: async () => {}, fetchImpl: async (url, options) => {
-      if (String(url).startsWith("https://actions.test")) {
+    };
+    const result = await publishStatus({ env, sleep: async () => {}, fetchImpl: async (url, options) => {
+      if (new URL(url).origin === "https://actions.test") {
         assert.equal(new URL(url).searchParams.get("audience"), "https://estado.sinergius.coop.ar/data/publish");
         assert.equal(options.headers.Authorization, "Bearer request-secret");
         return Response.json({ value: "temporary-identity" });
@@ -35,5 +41,9 @@ test("publica con OIDC y comprueba la misma versión por la URL pública; reinte
     assert.equal(writes, 2);
     assert.deepEqual(result, { published: true, revision: snapshot.revision, checkedAt: snapshot.status.checkedAt });
     assert.equal(JSON.stringify(result).includes("identity"), false);
+    await writeFile(join(dir, "status.json"), JSON.stringify({ ...snapshot.status, privateToken: "secret" }));
+    await assert.rejects(publishStatus({ env, fetchImpl: async () => {
+      assert.fail("Unexpected fields must fail before any network request");
+    } }), /Invalid public documents/);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });

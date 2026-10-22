@@ -55,11 +55,15 @@ disparar una nueva medición desde `main` después de resolver el problema.
 Una identidad inválida, cuerpo inválido o publicación anterior no cambia el
 almacén. El estado guardado deja de servirse al superar dos horas.
 
-Para volver al Worker anterior: desactivar `STATUS_PUSH_ENABLED`, restaurar la
-versión/código anterior conservado y comprobar los endpoints individuales y la
-página. Esto recupera la latencia de Raw y debe informarse como degradación.
-No borrar ni renombrar la clase o su namespace al revertir: conservar el snapshot
-para el siguiente despliegue. Si se revierte el frontend, los endpoints
-individuales siguen funcionando con el Worker nuevo.
+Para volver al proxy anterior: desactivar `STATUS_PUSH_ENABLED` y publicar el
+código anterior conservado como una versión nueva que mantenga el export
+`StatusSnapshot extends DurableObject` y su binding. Preparar ese bundle y
+verificarlo con un dry-run antes del despliegue inicial. El objeto puede quedar
+inactivo: no debe escribir ni borrar datos. Comprobar los endpoints individuales
+y la página. Esto recupera la latencia de Raw y debe informarse como degradación.
+No usar un rollback por ID a una versión anterior a la migración ni borrar o
+renombrar la clase/namespace: conservar el snapshot para el siguiente despliegue.
+Si se revierte el frontend, los endpoints individuales siguen funcionando con
+el Worker nuevo.
 
 La operación no requiere cambios ni reinicios en la VPS.

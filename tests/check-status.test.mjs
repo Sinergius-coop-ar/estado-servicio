@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 import {
   applyMeasurement,
+  buildTargets,
   checkTarget,
   dayStatusFromCounts,
   hasNetworkAccess,
@@ -64,6 +65,19 @@ test("el control SMTP requiere un token fuera del repositorio", () => {
   const meeting = TARGETS.find(({ id }) => id === "meeting_api");
   assert.equal(meeting.requiredEnv, "MEETING_HEALTH_TOKEN");
   assert.equal(JSON.stringify(meeting).includes("Bearer"), false);
+});
+
+test("el monitor comprueba el snapshot que usa la página al activar la publicación inmediata", async () => {
+  const requested = [];
+  const result = await checkTarget(buildTargets(true)[0], async url => {
+    requested.push(url);
+    return url.endsWith("snapshot.json")
+      ? new Response("unavailable", { status: 503 })
+      : new Response("Estado de los servicios");
+  }, async () => {});
+  assert.equal(result.ok, false);
+  assert.equal(result.httpStatus, 503);
+  assert.ok(requested.includes("https://estado.sinergius.coop.ar/data/snapshot.json"));
 });
 
 test("clasifica el estado general según los controles", () => {

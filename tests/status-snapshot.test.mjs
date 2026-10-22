@@ -64,6 +64,9 @@ test("no permite escritura anónima, otros métodos, rutas ni snapshots inválid
   assert.equal((await denied(new Request(`${base}/data/private.json`), env)).status, 404);
   const handle = createSnapshotWorker({ verify: async () => true });
   assert.equal((await handle(publish({}), env)).status, 400);
+  assert.equal((await handle(publish({ ...snapshot(), privateToken: "never publish" }), env)).status, 400);
+  const extra = snapshot(); extra.status.components[0].privateToken = "never publish";
+  assert.equal((await handle(publish(extra), env)).status, 400);
   assert.equal((await handle(publish(snapshot(Date.now() - 3 * 60 * 60 * 1000)), env)).status, 400);
   assert.equal((await handle(publish({ ...snapshot(), incidents: { incidents: [{ id: "invalid" }] } }), env)).status, 400);
 });

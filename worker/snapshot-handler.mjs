@@ -1,5 +1,5 @@
 import {
-  createStatusDataProxy, jsonResponse, readLimitedBody, validateStatus, validateIncidents,
+  createStatusDataProxy, jsonResponse, readLimitedBody, validatePublicDocuments,
 } from "./status-data-proxy.mjs";
 import { createGithubOidcVerifier } from "./github-oidc.mjs";
 
@@ -16,7 +16,8 @@ function reply(document, status = 200, method = "GET", headers = {}) {
 function validSnapshot(value, now) {
   return value !== null && typeof value === "object" &&
     /^[a-f0-9]{40}$/.test(value.revision ?? "") &&
-    validateStatus(value.status, now) && validateIncidents(value.incidents);
+    Object.keys(value).every(key => ["revision", "status", "incidents"].includes(key)) &&
+    validatePublicDocuments(value.status, value.incidents, now);
 }
 
 // One named object stores both public documents in a single atomic value.

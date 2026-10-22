@@ -110,6 +110,23 @@ export function validateIncidents(document) {
   });
 }
 
+// Publication accepts the public schema only, including every nested object.
+// Unexpected fields must never be copied from a local artifact to the web.
+export function validatePublicDocuments(status, incidents, nowMs) {
+  const only = (value, names) => isObject(value) && Object.keys(value).every(key => names.includes(key));
+  return validateStatus(status, nowMs) && validateIncidents(incidents) &&
+    only(status, ["overall", "checkedAt", "message", "components", "history"]) &&
+    status.components.every(item => only(item, ["id", "name", "description", "status"])) &&
+    only(status.history, ["startedAt", "days"]) && status.history.days.every(day =>
+      only(day, ["date", "checks", "failed", "failedChecks", "overall"]) &&
+      /^\d{4}-\d{2}-\d{2}$/.test(day.date) && Number.isSafeInteger(day.checks) && day.checks > 0 &&
+      STATUS_VALUES.has(day.overall) && only(day.failed, [...COMPONENT_IDS]) &&
+      Object.values(day.failed).every(count => Number.isSafeInteger(count) && count >= 0 && count <= day.checks) &&
+      Number.isSafeInteger(day.failedChecks) && day.failedChecks >= 0 && day.failedChecks <= day.checks) &&
+    only(incidents, ["incidents"]) && incidents.incidents.every(item => only(item,
+      ["id", "title", "message", "startedAt", "lastHealthyAt", "resolvedAt", "kind"]));
+}
+
 export async function readLimitedBody(response) {
   const declaredLength = Number(response.headers.get("content-length"));
   if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
