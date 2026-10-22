@@ -25,7 +25,7 @@ const shortDateFormatter = new Intl.DateTimeFormat("es-AR", {
   day: "numeric",
   month: "short",
 });
-const AUTO_REFRESH_MS = 60_000;
+const AUTO_REFRESH_MS = 15_000;
 let renderInFlight = false;
 
 function safeStatus(value) {
@@ -292,6 +292,22 @@ async function loadJson(path) {
   return response.json();
 }
 
+async function loadSnapshot() {
+  const response = await fetch(`./data/snapshot.json?v=${Date.now()}`, {
+    cache: "no-store", credentials: "omit",
+  });
+  // A Pages rollback can precede the Worker rollout. Only an older Worker's
+  // missing route may use the previous format; an unavailable store is an error.
+  if (response.status === 404) {
+    const [status, incidents] = await Promise.all([
+      loadJson("./data/status.json"), loadJson("./data/incidents.json"),
+    ]);
+    return { status, incidents };
+  }
+  if (!response.ok) throw new Error("No se pudo cargar el estado");
+  return response.json();
+}
+
 async function render() {
   if (renderInFlight) {
     return;
@@ -305,10 +321,7 @@ async function render() {
   const lastUpdated = document.querySelector("#last-updated");
 
   try {
-    const [statusData, incidentsData] = await Promise.all([
-      loadJson("./data/status.json"),
-      loadJson("./data/incidents.json"),
-    ]);
+    const { status: statusData, incidents: incidentsData } = await loadSnapshot();
 
     const overall = safeStatus(statusData.overall);
     document.body.dataset.overall = overall;
@@ -350,7 +363,9 @@ async function render() {
 }
 
 void render();
-window.setInterval(() => void render(), AUTO_REFRESH_MS);
+window.setInterval(() => {
+  if (document.visibilityState === "visible") void render();
+}, AUTO_REFRESH_MS);
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
     void render();

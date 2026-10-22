@@ -69,8 +69,9 @@ jobs:
     if: needs.check.outputs.persist == 'true'
     permissions:
       contents: write
+      id-token: write
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 4
     needs: check
     steps:
       - name: Descargar rama de estado
@@ -78,6 +79,15 @@ jobs:
         with:
           ref: status-data
           fetch-depth: 1
+          path: _state-repo
+
+      - name: Descargar publicador del commit protegido
+        if: vars.STATUS_PUSH_ENABLED == 'true'
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: _code
+          persist-credentials: false
 
       - name: Preparar Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -91,7 +101,9 @@ jobs:
           path: ${{ runner.temp }}/monitor-state
 
       - name: Persistir exclusivamente los JSON públicos
+        id: state
         shell: bash
+        working-directory: _state-repo
         run: |
           test -f "${RUNNER_TEMP}/monitor-state/data/status.json"
           test -f "${RUNNER_TEMP}/monitor-state/data/incidents.json"
@@ -99,6 +111,9 @@ jobs:
           node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); JSON.parse(require('fs').readFileSync(process.argv[2], 'utf8'))" \
             "${RUNNER_TEMP}/monitor-state/data/status.json" \
             "${RUNNER_TEMP}/monitor-state/data/incidents.json"
+
+          node -e "const fs=require('fs'); const next=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); const current=JSON.parse(fs.readFileSync('data/status.json','utf8')); if (!(Date.parse(next.checkedAt)>Date.parse(current.checkedAt))) { console.error('La medición no es posterior al estado guardado.'); process.exit(1); }" \
+            "${RUNNER_TEMP}/monitor-state/data/status.json"
 
           cp "${RUNNER_TEMP}/monitor-state/data/status.json" data/status.json
           cp "${RUNNER_TEMP}/monitor-state/data/incidents.json" data/incidents.json
@@ -115,3 +130,11 @@ jobs:
           git add -- data/status.json data/incidents.json
           git commit -m "Actualizar estado del servicio"
           git push origin HEAD:status-data
+          echo "revision=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
+
+      - name: Publicar y verificar estado sin demora de caché
+        if: vars.STATUS_PUSH_ENABLED == 'true'
+        env:
+          STATUS_DATA_DIR: ${{ github.workspace }}/_state-repo/data
+          STATUS_DATA_REVISION: ${{ steps.state.outputs.revision }}
+        run: node _code/scripts/publish-status.mjs

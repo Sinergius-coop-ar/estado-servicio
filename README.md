@@ -11,7 +11,7 @@ no destructivo del formulario de reuniones y el dominio alternativo. Reintenta
 antes de declarar una falla, actualiza los componentes
 afectados y abre o resuelve automáticamente el incidente público. Cada control
 publica la hora confirmada en la rama aislada `status-data`.
-La página vuelve a consultar el estado publicado cada minuto y también cuando
+La página vuelve a consultar el estado publicado cada quince segundos mientras está visible y también cuando
 el usuario regresa a una pestaña que había quedado abierta.
 
 Cada componente muestra un gráfico compacto de los últimos 90 días. El historial
@@ -110,15 +110,24 @@ internos.
 
 `Publicar página de estado` valida y despliega el sitio estático mediante GitHub
 Pages en `estado.sinergius.coop.ar`. El workflow programado conserva los dos
-JSON después de cada medición válida. Cloudflare sirve exclusivamente
-`/data/status.json` y `/data/incidents.json` desde `status-data` mediante el
-Worker versionado en `worker/status-data-proxy.mjs`; valida esquema, tamaño y
-vigencia y responde 503, nunca un verde viejo, si el origen falla.
+JSON después de cada medición válida. Después del commit, el monitor publica
+ambos JSON juntos en el Worker `worker/status-snapshot.mjs`, autenticado con una
+identidad OIDC temporal de GitHub Actions limitada a este repositorio, `main` y
+el workflow del monitor. No necesita una contraseña de publicación permanente.
+Un único Durable Object con SQLite conserva esa versión de forma atómica y
+consistente; las lecturas públicas no consultan GitHub Raw ni usan caché HTTP.
+El Worker valida esquema, tamaño y vigencia y responde 503 si el estado guardado
+supera dos horas o el almacenamiento falla.
+
+`/data/snapshot.json` entrega ambos documentos juntos a la página, evitando
+mezclar mediciones durante una actualización. Los endpoints individuales
+`/data/status.json` y `/data/incidents.json` siguen disponibles. El encabezado
+`X-Status-Revision` identifica el commit de datos publicado.
 
 El código y los workflows permanecen en `main`, con sus controles obligatorios.
 Los dos JSON mutables se conservan en la rama `status-data`, que no es fuente de
 código ni de GitHub Pages. GitHub Pages sólo se vuelve a desplegar cuando cambia
-el código estático de `main`; los datos se leen por la ruta aislada del Worker.
+el código de `main`; cada medición publica los datos por la ruta aislada del Worker.
 El procedimiento de operación y rollback está en
 [`docs/status-data-runbook.md`](./docs/status-data-runbook.md).
 
