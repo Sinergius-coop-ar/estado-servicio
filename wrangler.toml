@@ -1,7 +1,15 @@
 name = "sinergius-status-data"
-main = "worker/status-data-proxy.mjs"
-compatibility_date = "2026-08-17"
+main = "worker/status-snapshot.mjs"
+compatibility_date = "2026-08-18"
 workers_dev = false
+
+[[durable_objects.bindings]]
+name = "STATUS_SNAPSHOT"
+class_name = "StatusSnapshot"
+
+[[migrations]]
+tag = "v1-status-snapshot"
+new_sqlite_classes = ["StatusSnapshot"]
 
 [[routes]]
 pattern = "estado.sinergius.coop.ar/data/*"

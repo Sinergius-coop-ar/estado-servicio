@@ -1,5 +1,4 @@
 const REPOSITORY = "Sinergius-coop-ar/estado-servicio";
-const DATA_BRANCH = "status-data";
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_STATUS_AGE_MS = 2 * 60 * 60 * 1000;
 const UPSTREAM_TIMEOUT_MS = 6_000;
@@ -42,7 +41,7 @@ function isIsoDate(value) {
   return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
-function validateStatus(document, nowMs) {
+export function validateStatus(document, nowMs) {
   if (
     !isObject(document) ||
     !STATUS_VALUES.has(document.overall) ||
@@ -84,7 +83,7 @@ function validateStatus(document, nowMs) {
   );
 }
 
-function validateIncidents(document) {
+export function validateIncidents(document) {
   if (!isObject(document) || !Array.isArray(document.incidents) || document.incidents.length > 500) {
     return false;
   }
@@ -111,7 +110,24 @@ function validateIncidents(document) {
   });
 }
 
-async function readLimitedBody(response) {
+// Publication accepts the public schema only, including every nested object.
+// Unexpected fields must never be copied from a local artifact to the web.
+export function validatePublicDocuments(status, incidents, nowMs) {
+  const only = (value, names) => isObject(value) && Object.keys(value).every(key => names.includes(key));
+  return validateStatus(status, nowMs) && validateIncidents(incidents) &&
+    only(status, ["overall", "checkedAt", "message", "components", "history"]) &&
+    status.components.every(item => only(item, ["id", "name", "description", "status"])) &&
+    only(status.history, ["startedAt", "days"]) && status.history.days.every(day =>
+      only(day, ["date", "checks", "failed", "failedChecks", "overall"]) &&
+      /^\d{4}-\d{2}-\d{2}$/.test(day.date) && Number.isSafeInteger(day.checks) && day.checks > 0 &&
+      STATUS_VALUES.has(day.overall) && only(day.failed, [...COMPONENT_IDS]) &&
+      Object.values(day.failed).every(count => Number.isSafeInteger(count) && count >= 0 && count <= day.checks) &&
+      Number.isSafeInteger(day.failedChecks) && day.failedChecks >= 0 && day.failedChecks <= day.checks) &&
+    only(incidents, ["incidents"]) && incidents.incidents.every(item => only(item,
+      ["id", "title", "message", "startedAt", "lastHealthyAt", "resolvedAt", "kind"]));
+}
+
+export async function readLimitedBody(response) {
   const declaredLength = Number(response.headers.get("content-length"));
   if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
     throw new Error("body_too_large");
@@ -147,14 +163,13 @@ async function readLimitedBody(response) {
   return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 }
 
-function jsonResponse(body, status, method) {
+export function jsonResponse(body, status, method, extraHeaders = {}) {
   const headers = new Headers({
-    "Cache-Control": status === 200
-      ? "public, max-age=0, s-maxage=60, must-revalidate"
-      : "no-store",
+    "Cache-Control": "no-store",
     "Content-Type": "application/json; charset=utf-8",
     "Cross-Origin-Resource-Policy": "same-origin",
     "X-Content-Type-Options": "nosniff",
+    ...extraHeaders,
   });
 
   if (status !== 200) {
@@ -179,7 +194,9 @@ function classifyFailure(error) {
   return knownReasons.has(error?.message) ? error.message : "unknown";
 }
 
-export function createStatusDataProxy({ fetchImpl = fetch, now = Date.now, logger = console } = {}) {
+// Only used to bootstrap an empty Durable Object during rollout. An immutable
+// commit avoids GitHub Raw's stale branch cache even before the first push.
+export function createStatusDataProxy({ revision, fetchImpl = fetch, now = Date.now, logger = console } = {}) {
   return async function handle(request) {
     const method = request.method.toUpperCase();
     if (method !== "GET" && method !== "HEAD") {
@@ -192,9 +209,11 @@ export function createStatusDataProxy({ fetchImpl = fetch, now = Date.now, logge
       return jsonResponse(JSON.stringify({ error: "not_found" }), 404, method);
     }
 
-    const timestamp = Math.floor(now() / 60_000);
+    if (!/^[a-f0-9]{40}$/.test(revision ?? "")) {
+      return jsonResponse(JSON.stringify({ error: "status_unavailable" }), 503, method);
+    }
     const upstreamUrl =
-      `https://raw.githubusercontent.com/${REPOSITORY}/${DATA_BRANCH}/data/${filename}?v=${timestamp}`;
+      `https://raw.githubusercontent.com/${REPOSITORY}/${revision}/data/${filename}`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
 
@@ -221,7 +240,9 @@ export function createStatusDataProxy({ fetchImpl = fetch, now = Date.now, logge
         throw new Error("invalid_document");
       }
 
-      return jsonResponse(`${JSON.stringify(document, null, 2)}\n`, 200, method);
+      return jsonResponse(`${JSON.stringify(document, null, 2)}\n`, 200, method, {
+        "X-Status-Revision": revision,
+      });
     } catch (error) {
       logger.warn?.("status_data_proxy_failure", {
         file: filename,
@@ -233,11 +254,3 @@ export function createStatusDataProxy({ fetchImpl = fetch, now = Date.now, logge
     }
   };
 }
-
-const handle = createStatusDataProxy();
-
-export default {
-  fetch(request) {
-    return handle(request);
-  },
-};

@@ -1,5 +1,9 @@
 # Estado mutable fuera de `main`
 
+La publicación actual por snapshot, el despliegue de Cloudflare y su rollback se
+describen en [snapshot-rollout.md](snapshot-rollout.md). El resto de este archivo
+conserva el procedimiento y la evidencia de la separación inicial de ramas.
+
 ## Motivo
 
 `main` exige los controles `validate`, `Analyze (javascript-typescript)` y

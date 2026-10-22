@@ -2,7 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { createStatusDataProxy } from "../worker/status-data-proxy.mjs";
+import { createStatusDataProxy as createProxy } from "../worker/status-data-proxy.mjs";
+
+const REVISION = "a".repeat(40);
+function createStatusDataProxy(options) { return createProxy({ revision: REVISION, ...options }); }
 
 const NOW = Date.parse("2026-08-18T01:00:00.000Z");
 
@@ -41,7 +44,9 @@ test("sirve sólo los dos JSON públicos desde la rama de datos", async () => {
   assert.equal(response.status, 200);
   assert.equal((await response.json()).checkedAt, validStatus.checkedAt);
   assert.equal(calls.length, 1);
-  assert.match(calls[0][0], /^https:\/\/raw\.githubusercontent\.com\/Sinergius-coop-ar\/estado-servicio\/status-data\/data\/status\.json\?v=\d+$/);
+  assert.equal(calls[0][0], `https://raw.githubusercontent.com/Sinergius-coop-ar/estado-servicio/${REVISION}/data/status.json`);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("x-status-revision"), REVISION);
   assert.deepEqual(calls[0][1].headers, { Accept: "application/json" });
   assert.equal(Object.hasOwn(calls[0][1], "cache"), false);
   assert.equal(Object.hasOwn(calls[0][1], "credentials"), false);

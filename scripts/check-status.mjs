@@ -7,7 +7,7 @@ const MAX_HISTORY_DAYS = 90;
 const MAX_RESPONSE_BYTES = 256 * 1024;
 const USER_AGENT = "EstadoServicio/1.0 (+https://estado.sinergius.coop.ar)";
 
-export const TARGETS = [
+export function buildTargets(snapshotEnabled = false) { return [
   {
     id: "status_page",
     url: "https://estado.sinergius.coop.ar/",
@@ -15,7 +15,9 @@ export const TARGETS = [
     expectedText: "Estado de los servicios",
     additionalChecks: [
       {
-        url: "https://estado.sinergius.coop.ar/data/status.json",
+        url: snapshotEnabled
+          ? "https://estado.sinergius.coop.ar/data/snapshot.json"
+          : "https://estado.sinergius.coop.ar/data/status.json",
         acceptedStatuses: [200],
         expectedText: '"checkedAt"',
       },
@@ -40,7 +42,9 @@ export const TARGETS = [
     acceptedStatuses: [200],
     expectedText: "Sinergius",
   },
-];
+]; }
+
+export const TARGETS = buildTargets(process.env.STATUS_PUSH_ENABLED === "true");
 
 /**
  * Destinos ajenos a la plataforma que sirven para saber si el problema es
