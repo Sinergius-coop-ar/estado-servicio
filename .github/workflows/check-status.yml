@@ -79,6 +79,11 @@ jobs:
           ref: status-data
           fetch-depth: 1
 
+      - name: Preparar Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.22.1
+
       - name: Descargar estado medido
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
