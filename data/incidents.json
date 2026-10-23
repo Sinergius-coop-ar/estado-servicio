@@ -1,6 +1,14 @@
 {
   "incidents": [
     {
+      "id": "automatic-20261023191541",
+      "title": "Interrupción parcial del servicio",
+      "message": "Detectamos problemas en una parte del servicio.",
+      "lastHealthyAt": "2026-10-23T19:01:14.242Z",
+      "startedAt": "2026-10-23T19:15:41.491Z",
+      "resolvedAt": null
+    },
+    {
       "id": "automatic-20261023184540",
       "title": "Interrupción parcial del servicio",
       "message": "El funcionamiento normal fue restablecido.",
