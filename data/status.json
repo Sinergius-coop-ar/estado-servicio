@@ -1,6 +1,6 @@
 {
   "overall": "operational",
-  "checkedAt": "2026-11-02T04:30:54.286Z",
+  "checkedAt": "2026-11-02T04:45:35.748Z",
   "message": "No detectamos problemas en los servicios controlados.",
   "components": [
     {
@@ -1024,7 +1024,7 @@
       },
       {
         "date": "2026-11-02",
-        "checks": 5,
+        "checks": 6,
         "failed": {
           "status_page": 1,
           "public_site": 0,
@@ -1032,7 +1032,7 @@
           "alternate_domain": 0
         },
         "failedChecks": 1,
-        "overall": "partial_outage"
+        "overall": "degraded"
       }
     ]
   }
