@@ -1,6 +1,6 @@
 {
   "overall": "operational",
-  "checkedAt": "2026-11-09T23:45:39.043Z",
+  "checkedAt": "2026-11-10T00:01:16.845Z",
   "message": "No detectamos problemas en los servicios controlados.",
   "components": [
     {
@@ -31,17 +31,6 @@
   "history": {
     "startedAt": "2026-08-11",
     "days": [
-      {
-        "date": "2026-08-13",
-        "checks": 116,
-        "failed": {
-          "public_site": 0,
-          "meeting_api": 0,
-          "alternate_domain": 0
-        },
-        "failedChecks": 0,
-        "overall": "operational"
-      },
       {
         "date": "2026-08-14",
         "checks": 120,
@@ -1087,6 +1076,18 @@
       {
         "date": "2026-11-09",
         "checks": 98,
+        "failed": {
+          "status_page": 0,
+          "public_site": 0,
+          "meeting_api": 0,
+          "alternate_domain": 0
+        },
+        "failedChecks": 0,
+        "overall": "operational"
+      },
+      {
+        "date": "2026-11-10",
+        "checks": 1,
         "failed": {
           "status_page": 0,
           "public_site": 0,
