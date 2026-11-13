@@ -1,6 +1,6 @@
 {
   "overall": "partial_outage",
-  "checkedAt": "2026-11-13T18:01:10.132Z",
+  "checkedAt": "2026-11-13T18:15:43.092Z",
   "message": "Detectamos problemas en una parte del servicio.",
   "components": [
     {
@@ -1089,14 +1089,14 @@
       },
       {
         "date": "2026-11-13",
-        "checks": 76,
+        "checks": 77,
         "failed": {
-          "status_page": 58,
+          "status_page": 59,
           "public_site": 0,
           "meeting_api": 0,
           "alternate_domain": 0
         },
-        "failedChecks": 58,
+        "failedChecks": 59,
         "overall": "major_outage"
       }
     ]
